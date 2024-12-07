@@ -1,11 +1,29 @@
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+import pickle
 
+from sklearn.model_selection import train_test_split
+from typing import Any
+
+class SaveLoad:
+    def pickle_save(obj: Any, file_path: str) -> None:
+        print('Pickle saving...')
+        with open(file_path, 'wb') as fp:
+            pickle.dump(obj, fp)
+            print('Pickle saved.')
+        return
+    
+    def pickle_load(file_path: str) -> Any:
+        print('Pickle loading...')
+        with open(file_path, 'rb') as fp:
+            obj = pickle.load(fp)
+        return obj
+    
 class DataImport:
     def get_train_test(path: str, index_col: int = None, target: str = None, test_size: float = 0.1, random_state: int = 1048576, verbose: int = 1) -> tuple[pd.DataFrame]:
         train_csv = pd.read_csv(path, index_col=index_col)
-        X, y = feature_target.feature_target_split(train_csv, target=target)
+        X, y = FeatureTarget.feature_target_split(train_csv, target=target)
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, test_size=test_size, random_state=random_state)
         if verbose > 0:
@@ -13,7 +31,7 @@ class DataImport:
             print(f'Shape of X_test is: {X_test.shape}; shape of y_test is: {y_test.shape}')
         return X_train, X_test, y_train, y_test
 
-class feature_target:
+class FeatureTarget:
     def feature_target_split(df: pd.DataFrame, target: str, col_drop=[]):
         y = df[target]
         mask = col_drop + [target]
@@ -23,8 +41,8 @@ class feature_target:
             X = df.drop(columns=target, axis=1)
         return X, y
 
-class plots:
-    def distributionPlots(df:pd.DataFrame, drop: str | list[str]=None) -> None:
+class Plots:
+    def distribution_plots(df:pd.DataFrame, drop: str | list[str]=None) -> None:
         # Set the Seaborn style
         sns.set(style="whitegrid")
         columns = df.columns.to_list()
@@ -71,15 +89,15 @@ class plots:
 
         plt.show()
 
-class correlations:
-    def featuresCorr(df: pd.DataFrame, num_features: list) -> None:
+class Correlations:
+    def features_corr(df: pd.DataFrame, num_features: list) -> None:
         df = df[num_features]
         cmap = sns.color_palette("light:b", as_cmap=True)
         sns.heatmap(df.corr().abs(), cmap=cmap,
                 square=True, linewidths=.5, annot=True)
         plt.show()
 
-    def pairwiseCorr(data:pd.DataFrame, target: str) -> None:
+    def pairwise_corr(data:pd.DataFrame, target: str) -> None:
         df = data.drop(target, axis=1)
         num_features = df.columns[(df.dtypes == 'int64') | (df.dtypes == 'float64')].to_list()
         cat_features = df.columns[df.dtypes == 'object'].to_list()
